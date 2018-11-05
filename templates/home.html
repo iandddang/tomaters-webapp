@@ -1,0 +1,52 @@
+<html>
+<head>
+    <title>Tomaters</title>
+</head>
+<style type="text/css">
+    body {
+        background-image: url("static/tomato.png");
+        background-repeat: repeat;
+    }
+    .yellowgreen-panel {
+        background-color: yellowgreen;
+        border: 2px solid black;
+        text-align: center;
+        font-family: "Comic Sans MS", cursive, sans-serif;
+        margin: 0.5%;
+        padding: 0.5%;
+    }
+    button {
+        background-color:steelblue;
+        color: white;
+        font-family: "Comic Sans MS", cursive, sans-serif;
+    }
+</style>
+<script type="text/javascript">
+    function toggleLight(){
+        alert('I do nothing right now but I will soon!');
+    }
+    function addNutrients(){
+        alert('I do nothing right now but I will soon!');
+    }
+</script>
+<body>
+    <div class="yellowgreen-panel" style="width: 15%; margin: auto;">
+        <h1>TOMATERS</h1>
+        <h5>Ian Dang, Marissa Hepler</h5>
+        <h5>Khang Pham, Mark Leyva</h5>
+    </div>
+    <div class="yellowgreen-panel">
+        <button onclick="toggleLight()"><img src="/static/tomato.png" height="18px;"> TOGGLE LIGHT <img src="/static/tomato.png" height="18px;"></button>
+        <br>
+        <span>
+            <label for="nutrient-quantity">Nutrient Quantity</label>
+            <select id="nutrient-quantity">
+                {% for i in range(1,11) %}
+                    <option>{{i}}</option>
+                {% endfor %}
+            </select>
+            <button onclick="addNutrients()"><img src="/static/tomato.png" height="18px;"> ADD NUTRIENTS <img src="/static/tomato.png" height="18px;"></button>
+        </span>
+    </div>
+</body>
+</html>
