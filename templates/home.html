@@ -1,6 +1,8 @@
 <html>
 <head>
     <title>Tomaters</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'socket.io.js') }}"></script>
 </head>
 <style type="text/css">
     body {
@@ -29,6 +31,15 @@
         alert('I do nothing right now but I will soon!');
     }
 </script>
+<script type="text/javascript">
+    //defines socket object
+    var socket = io();
+
+    //event handler
+    socket.on('new_signal', function(data){
+        $('#test-span').text(data);
+    });  
+</script>
 <body>
     <div class="yellowgreen-panel" style="width: 15%; margin: auto;">
         <h1>TOMATERS</h1>
@@ -47,6 +58,9 @@
             </select>
             <button onclick="addNutrients()"><img src="/static/tomato.png" height="18px;"> ADD NUTRIENTS <img src="/static/tomato.png" height="18px;"></button>
         </span>
+    </div>
+    <div class="yellowgreen-panel">
+        <span id="test-span"></span>
     </div>
 </body>
 </html>
