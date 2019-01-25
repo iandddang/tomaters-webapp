@@ -1,6 +1,9 @@
 <html>
 <head>
     <title>Tomaters</title>
+    <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename = 'socket.io.js') }}"></script>
 </head>
@@ -60,7 +63,24 @@
         </span>
     </div>
     <div class="yellowgreen-panel">
+        <h1>Socket IO Sample Data</h1>
         <span id="test-span"></span>
     </div>
+    
+        {% for id in ids %}
+            <h3 style="text-color: white;">{{id}}</h3>
+            <div class="yellowgreen-panel" style="" id="{{id}}">
+            </div>
+        {% endfor %}
+    
 </body>
+<script type="text/javascript">
+    var graphs = {{graphJSON | safe}};
+    var ids = {{ids | safe}};
+    for(var i in graphs) {
+        Plotly.plot(ids[i], // the ID of the div, created above
+                    graphs[i].data,
+                    graphs[i].layout || {});
+    }
+</script>
 </html>
