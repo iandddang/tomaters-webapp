@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO
+from PlotManager import PlotManager
 from time import sleep
 import random
 import threading
@@ -12,6 +13,9 @@ app = Flask(__name__)
 # websocket object
 socket = SocketIO(app)
 
+# plot object
+plot_manager = PlotManager()
+
 # test thread function
 def generate_random_number():
     while True:
@@ -22,33 +26,7 @@ def generate_random_number():
 @app.route('/', methods=['GET'])
 def home():
 
-        graphs = [
-                dict(
-                        data=[
-                        dict(
-                                x=[60, 70, 65],
-                                y=[60, 120, 180],
-                                type='scatter'
-                        ),
-                        ],
-                        layout=dict(
-                        title='Sample Temperature Graph'
-                        )
-                ),
-
-                dict(
-                        data=[
-                        dict(
-                                x=[0.1, 0.3, 0.5],
-                                y=[60, 120, 180],
-                                type='bar'
-                        ),
-                        ],
-                        layout=dict(
-                        title='Sample Height Graph graph'
-                        )
-                )
-        ]
+        graphs = plot_manager.graphs
 
         # Add "ids" to each of the graphs to pass up to the client
         # for templating
@@ -62,7 +40,8 @@ def home():
         return render_template('home.html', page='home', cls=plotly.utils.PlotlyJSONEncoder, ids=ids, graphJSON=graphJSON)
 
 if __name__ == "__main__":
-    socket_test_thread = threading.Thread(target=generate_random_number)
-    socket_test_thread.start()
+        socket_test_thread = threading.Thread(target=generate_random_number)
+        socket_test_thread.start()
+        plot_manager.randomlyFillGraph_thread.start()
 
-    app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=True)
+        app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=True)
