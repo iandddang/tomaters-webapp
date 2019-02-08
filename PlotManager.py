@@ -3,7 +3,7 @@ import threading
 from time import sleep
 
 class PlotManager:
-    def __init__(self):
+    def __init__(self, socket):
         self.graphs = [
             dict(
                     data=[
@@ -32,6 +32,7 @@ class PlotManager:
         ]
 
         self.randomlyFillGraph_thread = threading.Thread(target=self.randomlyFillGraph)
+        self.socket = socket
 
 
     def randomlyFillGraph(self):
@@ -49,4 +50,6 @@ class PlotManager:
                 graph['data'][0]['x'] = x_array
                 graph['data'][0]['y'] = y_array
                 
-            sleep(10)
+                self.socket.emit('new_graph_signal', self.graphs)
+            
+            sleep(5)

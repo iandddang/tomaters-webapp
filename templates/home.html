@@ -1,17 +1,24 @@
 <html>
 <head>
     <title>Tomaters</title>
-    <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--Local SocketIO Import-->
     <script type="text/javascript" src="{{ url_for('static', filename = 'socket.io.js') }}"></script>
+    <!--Plotly Import-->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!--Jquery Import-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--Bootstrap Imports-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- Font Awesome Import -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <style type="text/css">
     body {
         background-image: url("static/tomato.png");
         background-repeat: repeat;
     }
+
     .yellowgreen-panel {
         background-color: yellowgreen;
         border: 2px solid black;
@@ -20,38 +27,79 @@
         margin: 0.5%;
         padding: 0.5%;
     }
-    button {
-        background-color:steelblue;
-        color: white;
-        font-family: "Comic Sans MS", cursive, sans-serif;
+
+    .modal-dialog {
+        width: 780px;
+        height: 680px;
     }
 </style>
+<!-- Toggle Functions -->
 <script type="text/javascript">
     function toggleLight(){
-        alert('I do nothing right now but I will soon!');
+        let lightStatusElement = document.getElementById('light-status');
+
+        var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+        xmlhttp.open("GET", "/lighttoggle");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xmlhttp.send();
+
+        xmlhttp.onreadystatechange = function() { 
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+                if(lightStatusElement.innerHTML.indexOf('lightbulb') == -1){
+                    $('#light-status').html('Light Status: <b></b><i class="fa fa-lightbulb-o" aria-hidden="true"></i></b>')
+                } else {
+                    $('#light-status').html('Light Status: <b></b><i class="fa fa-minus-circle" aria-hidden="true"></i></b>')
+                }
+            } 
+        }
     }
     function addNutrients(){
-        alert('I do nothing right now but I will soon!');
+        let nutrientValue = document.getElementById('nutrient-quantity').value;
+        alert('I do nothing right now but I will soon!\nYou selected ' + nutrientValue);
     }
 </script>
+<!-- SocketIO Signals -->
 <script type="text/javascript">
     //defines socket object
     var socket = io();
-
-    //event handler
-    socket.on('new_signal', function(data){
-        $('#test-span').text(data);
+   
+    socket.on('new_graph_signal', function(data){
+        /*
+        Deletes graphs
+        */
+        for(let i = 0; i < data.length; i++){
+            let graphDiv = document.getElementById('graph-' + String(i));
+            Plotly.purge(graphDiv);
+        }
+    
+        /*
+        Replots
+        */
+        var graphs = data;
+        var ids = {{ids | safe}};
+        for(var i in graphs) {
+            Plotly.plot(ids[i], // the ID of the div, created above
+                        graphs[i].data,
+                        graphs[i].layout || {});
+        }
     });  
 </script>
 <body>
-    <div class="yellowgreen-panel" style="width: 15%; margin: auto;">
+    <div class="yellowgreen-panel" style"margin: auto;">
         <h1>TOMATERS</h1>
         <h5>Ian Dang, Marissa Hepler</h5>
         <h5>Khang Pham, Mark Leyva</h5>
     </div>
     <div class="yellowgreen-panel">
-        <button onclick="toggleLight()"><img src="/static/tomato.png" height="18px;"> TOGGLE LIGHT <img src="/static/tomato.png" height="18px;"></button>
-        <br>
+        <span>
+            {% if plant_manager.light_toggle %}
+                <label style="margin-right: 2%;" id="light-status" for="light-btn">Light Status: <b></b><i class="fa fa-lightbulb-o" aria-hidden="true"></i></b></label>
+            {% else %}
+                <label style="margin-right: 2%;" id="light-status" for="light-btn">Light Status: <b></b><i class="fa fa-minus-circle" aria-hidden="true"></i></b></label>
+            {% endif %}
+            <button id="light-btn" class="btn btn-primary" onclick="toggleLight()"><img src="/static/tomato.png" height="18px;"> TOGGLE LIGHT <img src="/static/tomato.png" height="18px;"></button>
+        </span>
+        <br><br>
         <span>
             <label for="nutrient-quantity">Nutrient Quantity</label>
             <select id="nutrient-quantity">
@@ -59,19 +107,35 @@
                     <option>{{i}}</option>
                 {% endfor %}
             </select>
-            <button onclick="addNutrients()"><img src="/static/tomato.png" height="18px;"> ADD NUTRIENTS <img src="/static/tomato.png" height="18px;"></button>
+            <button class="btn btn-primary" onclick="addNutrients()"><img src="/static/tomato.png" height="18px;"> ADD NUTRIENTS <img src="/static/tomato.png" height="18px;"></button>
         </span>
     </div>
     <div class="yellowgreen-panel">
         <h1>Socket IO Sample Data</h1>
-        <span id="test-span"></span>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#graph-0-modal">Example Plot 1</button>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#graph-1-modal">Example Plot 2</button>
     </div>
-    
-        {% for id in ids %}
-            <h3 style="text-color: white;">{{id}}</h3>
-            <div class="yellowgreen-panel" style="" id="{{id}}">
+    {% for id in ids %}
+        <div class="modal fade" id="{{id}}-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog-centered" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="{{id}}-title">Graph {{loop.index}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="{{id}}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                </div>
             </div>
-        {% endfor %}
+        </div>
+    {% endfor %}
+    
+        
     
 </body>
 <script type="text/javascript">

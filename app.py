@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO
 from PlotManager import PlotManager
+from PlantManager import PlantManager
 from time import sleep
 import random
 import threading
@@ -14,7 +15,8 @@ app = Flask(__name__)
 socket = SocketIO(app)
 
 # plot object
-plot_manager = PlotManager()
+plot_manager = PlotManager(socket)
+plant_manager = PlantManager()
 
 # test thread function
 def generate_random_number():
@@ -37,7 +39,18 @@ def home():
         # objects to their JSON equivalents
         graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
-        return render_template('home.html', page='home', cls=plotly.utils.PlotlyJSONEncoder, ids=ids, graphJSON=graphJSON)
+        return render_template('home.html', page='home', cls=plotly.utils.PlotlyJSONEncoder, ids=ids, graphJSON=graphJSON, plant_manager=plant_manager)
+
+
+@app.route('/lighttoggle', methods=['GET', 'POST'])
+def toggle_light():
+        if plant_manager.light_toggle:
+                plant_manager.light_toggle = False
+        else:
+                plant_manager.light_toggle = True
+
+        return 'a'
+
 
 if __name__ == "__main__":
         socket_test_thread = threading.Thread(target=generate_random_number)
