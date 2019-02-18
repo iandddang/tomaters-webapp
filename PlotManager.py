@@ -36,8 +36,10 @@ class PlotManager:
 
 
     def randomlyFillGraph(self):
+        counter = 0
         while True:
 
+            # randomly adding stuff
             for graph in self.graphs:
                 
                 x_array = graph['data'][0]['x']
@@ -52,4 +54,13 @@ class PlotManager:
                 
                 self.socket.emit('new_graph_signal', self.graphs)
             
-            sleep(5)
+            # limit to 3 data entries 
+            if counter == 5:
+                print('reset')
+                counter = 0
+                for graph in self.graphs:
+                    graph['data'][0]['x'] = graph['data'][0]['x'][0:2]
+                    graph['data'][0]['x'] = graph['data'][0]['x'][0:2]
+
+            counter += 1
+            sleep(15)
