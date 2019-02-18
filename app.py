@@ -73,4 +73,4 @@ if __name__ == "__main__":
         socket_test_thread.start()
         plot_manager.randomlyFillGraph_thread.start()
 
-        app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=True)
+        app.run(host='0.0.0.0', port=80, debug=True, use_reloader=True)
