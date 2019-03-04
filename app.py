@@ -7,6 +7,7 @@ import random
 import threading
 import json
 import plotly
+from datetime import datetime
 
 # flask config
 app = Flask(__name__)
@@ -25,6 +26,7 @@ def generate_random_number():
         random_float = round(random.uniform(0, 100), 2)
         socket.emit('new_signal', random_float)
         sleep(2.5)
+
 
 @app.route('/', methods=['GET'])
 def home():
@@ -56,7 +58,31 @@ def login():
                 status = 'Error caught: ' + str(e)
         
         return status
-        
+
+
+@app.route('/lightdetected', methods=['POST'])
+def light_detected():
+        try:
+                if request.json['password'] == 'EECS159A' and request.json['username'] == 'Tomater':
+                        status = request.json['status'].upper()
+                        time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        data = {
+                                'status': status,
+                                'timestamp': time_now        
+                        }
+
+                        plant_manager.light_status = status
+                        plant_manager.light_status_timestamp = time_now
+
+                        socket.emit('light_detected_signal', data)
+                        ret_status = 'Success.'
+                else:
+                        ret_status = 'Credentials were invalid.'
+        except Exception as e:
+                ret_status = 'Error caught: ' + str(e)
+
+        return ret_status
+
 
 @app.route('/lighttoggle', methods=['GET', 'POST'])
 def toggle_light():
