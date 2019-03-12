@@ -8,6 +8,7 @@ import threading
 import json
 import plotly
 from datetime import datetime
+from pytz import timezone
 
 # flask config
 app = Flask(__name__)
@@ -98,8 +99,9 @@ def plot_temperature():
                 if request.json['password'] == 'EECS159A' and request.json['username'] == 'Tomater':
                         temperature = request.json['temp']
                         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        now_pacific = timestamp.astimezone(timezone('US/Pacific')).strftime('%Y-%m-%d %H:%M:%S')
                         
-                        plot_manager.append_temperature(temperature, timestamp)
+                        plot_manager.append_temperature(temperature, now_pacific)
                         
                         socket.emit('new_temperature_signal', {
                                 'charData': plot_manager.graphs[0]['data'],
