@@ -15,7 +15,7 @@ class PlotManager:
                         )
                     ],
                     layout = dict(
-                        title='Temperature Plot',
+                        title='Temperature Plot (PST)',
                         xaxis={
                             'title': {
                                 'text': 'Timestamp'
