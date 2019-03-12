@@ -16,18 +16,12 @@ app.secret_key = "top secret key"
 # websocket object
 socket = SocketIO(app)
 
-# plot object
+# memory management options
 plot_manager = PlotManager(socket)
 plant_manager = PlantManager()
 
-# test thread function
-def generate_random_number():
-    while True:
-        random_float = round(random.uniform(0, 100), 2)
-        socket.emit('new_signal', random_float)
-        sleep(2.5)
 
-
+# endpoint for home, only allows access when session is authenticated
 @app.route('/', methods=['GET'])
 def home():
         if session.get('logged_in'):
@@ -47,6 +41,7 @@ def home():
                 return render_template('login.html')
 
 
+# endpoint for login, also has login page
 @app.route('/login', methods=['POST'])
 def login():
         try:
@@ -60,6 +55,7 @@ def login():
         return status
 
 
+# endpoint for light detection
 @app.route('/lightdetected', methods=['POST'])
 def light_detected():
         try:
@@ -84,6 +80,7 @@ def light_detected():
         return ret_status
 
 
+# endpoint to toggle light
 @app.route('/lighttoggle', methods=['GET', 'POST'])
 def toggle_light():
         if plant_manager.light_toggle:
@@ -94,9 +91,29 @@ def toggle_light():
         return 'a'
 
 
-if __name__ == "__main__":
-        socket_test_thread = threading.Thread(target=generate_random_number)
-        socket_test_thread.start()
-        plot_manager.randomlyFillGraph_thread.start()
+# endpoint to add data point to temperature plot
+@app.route('/plot/temperature', methods=['GET', 'POST'])
+def plot_temperature():
+        try:
+                if request.json['password'] == 'EECS159A' and request.json['username'] == 'Tomater':
+                        temperature = request.json['temp']
+                        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        
+                        plot_manager.append_temperature(temperature, timestamp)
+                        
+                        socket.emit('new_temperature_signal', {
+                                'charData': plot_manager.graphs[0]['data'],
+                                'layout': plot_manager.graphs[0]['layout']
+                        })
 
+                        ret_status = 'Success. Temperature plotted.'
+                else:
+                        ret_status = 'Credentials were invalid.'
+        except Exception as e:
+                ret_status = 'Error caught: ' + str(e)
+
+        return ret_status
+
+
+if __name__ == "__main__":
         app.run(host='0.0.0.0', port=80, debug=True, use_reloader=True)

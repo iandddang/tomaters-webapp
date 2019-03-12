@@ -84,6 +84,11 @@
         }
     });  
 
+    socket.on('new_temperature_signal', function(data){
+        let graphDiv = document.getElementById('graph-0');
+        Plotly.newPlot(graphDiv, data['charData'], data['layout']);
+    });
+
     socket.on('light_detected_signal', function(data){
         document.getElementById('last-updated-light-detection').innerHTML = data['timestamp'];
         document.getElementById('status-light-detection').innerHTML = data['status']
@@ -117,8 +122,8 @@
     </div>
     <div class="yellowgreen-panel">
         <h1>Socket IO Sample Data</h1>
-        <button class="btn btn-primary" data-toggle="modal" data-target="#graph-0-modal">Example Plot 1</button>
-        <button class="btn btn-primary" data-toggle="modal" data-target="#graph-1-modal">Example Plot 2</button>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#graph-0-modal">Temperature Plot</button>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#graph-1-modal">Height Plot</button>
     </div>
     <div class="yellowgreen-panel">
         <h1>Light Detection</h1>

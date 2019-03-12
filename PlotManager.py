@@ -1,20 +1,31 @@
 import random
 import threading
 from time import sleep
+from datetime import datetime
 
 class PlotManager:
     def __init__(self, socket):
         self.graphs = [
             dict(
-                    data=[
+                    data = [
                         dict(
-                                x=[1, 2, 3],
-                                y=[3, 1, 2],
-                                type='scatter'
-                        ),
+                            x=[],
+                            y=[],
+                            type='scatter'
+                        )
                     ],
-                    layout=dict(
-                        title='Sample Temperature Graph'
+                    layout = dict(
+                        title='Temperature Plot',
+                        xaxis={
+                            'title': {
+                                'text': 'Timestamp'
+                            }
+                        },
+                        yaxis={
+                            'title': {
+                                'text': 'Temperature (F)'
+                            }
+                        }
                     )
             ),
             dict(
@@ -23,10 +34,10 @@ class PlotManager:
                             x=[1, 2, 3],
                             y=[5, 4, 2],
                             type='bar'
-                    ),
+                    )
                 ],
                 layout=dict(
-                    title='Sample Height Graph graph'
+                    title='Sample Height Plot'
                 )
             )
         ]
@@ -64,3 +75,8 @@ class PlotManager:
 
             counter += 1
             sleep(15)
+
+    def append_temperature(self, temperature, timestamp):
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.graphs[0]['data'][0]['x'].append(timestamp)
+        self.graphs[0]['data'][0]['y'].append(temperature)
