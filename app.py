@@ -98,8 +98,9 @@ def plot_temperature():
         try:
                 if request.json['password'] == 'EECS159A' and request.json['username'] == 'Tomater':
                         temperature = request.json['temp']
-                        timestamp = datetime.now()
-                        now_pacific = timestamp.astimezone(timezone('US/Pacific')).strftime('%Y-%m-%d %H:%M:%S')
+                        timestamp = datetime.utcnow()
+                        timestamp = timestamp.astimezone(timezone('US/Pacific'))
+                        now_pacific = timestamp.strftime('%Y-%m-%d %H:%M:%S')
                         
                         plot_manager.append_temperature(temperature, now_pacific)
                         
